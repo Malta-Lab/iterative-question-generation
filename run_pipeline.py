@@ -7,7 +7,12 @@ from modules.search.web_search import WebSearch
 from modules.parsing.document_parser import DocumentParser
 from modules.segmentation.passage_extractor import PassageExtractor
 from modules.retrieval.bm25_retriever import BM25Retriever
+
 from modules.verdict.rule_verdict import RuleVerdict
+from modules.verdict.majority_verdict import MajorityVerdict
+from modules.verdict.weighted_verdict import WeightedVerdict
+from modules.verdict.llm_verdict import LLMVerdict
+
 from modules.stance.llm_stance_detector import LLMStanceDetector
 from modules.reranking.cross_encoder_reranker import CrossEncoderReranker
 from modules.qa.qa_generator import QAGenerator
@@ -31,7 +36,7 @@ pipeline = AveritecPipeline(
     retriever=BM25Retriever(),
     qa_generator=QAGenerator(llm),
     stance_detector=LLMStanceDetector(llm),
-    verdict_predictor=RuleVerdict(),
+    verdict_predictor=LLMVerdict(llm),
     justification_generator=JustificationGenerator(llm),
     reranker=CrossEncoderReranker()
 )

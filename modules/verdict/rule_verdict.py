@@ -1,23 +1,33 @@
-class RuleVerdict:
+from collections import Counter
+from .base_verdict import BaseVerdict
+
+
+class RuleVerdict(BaseVerdict):
 
     def run(self, context):
 
-        labels = [s for _, s in context.stances]
+        stances = [s["label"].lower() for s in context.stances]
 
-        if "SUPPORT" in labels and "REFUTE" in labels:
+        counts = Counter(stances)
 
-            context.verdict = "CONFLICTING"
+        support = counts.get("supported", 0)
+        refute = counts.get("refuted", 0)
+        nee = counts.get("not enough evidence", 0)
 
-        elif "SUPPORT" in labels:
 
-            context.verdict = "SUPPORTED"
+        if support > refute and support > nee:
+            verdict = "supported"
 
-        elif "REFUTE" in labels:
+        elif refute > support and refute > nee:
+            verdict = "refuted"
 
-            context.verdict = "REFUTED"
+        elif support == 0 and refute == 0:
+            verdict = "not enough evidence"
 
         else:
+            verdict = "conflicting"
 
-            context.verdict = "NOT ENOUGH EVIDENCE"
+
+        context.verdict = verdict
 
         return context
