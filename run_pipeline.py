@@ -1,5 +1,5 @@
 from pipeline.context import ClaimContext
-from pipeline.pipeline import AveritecPipeline
+from pipeline.pipeline import Pipeline
 
 from modules.llm.ollama_interface import OllamaLLM
 from modules.question_generation.question_generator import QuestionGenerator
@@ -25,10 +25,9 @@ import os
 load_dotenv()
 
 searcher = WebSearch(api_key=os.getenv("BRAVE_API_KEY"))
-
 llm = OllamaLLM()
 
-pipeline = AveritecPipeline(
+pipeline = Pipeline(
     question_generator=QuestionGenerator(llm),
     searcher=searcher,
     parser=DocumentParser(),
@@ -36,7 +35,7 @@ pipeline = AveritecPipeline(
     retriever=BM25Retriever(),
     qa_generator=QAGenerator(llm),
     stance_detector=LLMStanceDetector(llm),
-    verdict_predictor=LLMVerdict(llm),
+    verdict_predictor=MajorityVerdict(),
     justification_generator=JustificationGenerator(llm),
     reranker=CrossEncoderReranker()
 )
@@ -63,9 +62,6 @@ print("\nSTANCE CLASSIFICATION:")
 for evidence, stance in result.stances:
     print(f"[{stance}] {evidence}")
 
-print("\nFINAL VERDICT:")
-print(result.verdict)
-
 print("\nQA PAIRS:\n")
 
 for qa in result.qa_pairs:
@@ -74,6 +70,12 @@ for qa in result.qa_pairs:
     print("A:", qa["answer"])
     print()
 
+print("\nFINAL VERDICT:")
+print(result.verdict)
+
 print("\nJUSTIFICATION:\n")
 
 print(result.justification)
+
+
+print(context.stances)

@@ -1,4 +1,4 @@
-class AveritecPipeline:
+class Pipeline:
 
     def __init__(self,
                  question_generator,
@@ -26,7 +26,6 @@ class AveritecPipeline:
         
 
     def run(self, context):
-
         context = self.question_generator.run(context)
         context = self.searcher.run(context)
         context = self.parser.run(context)

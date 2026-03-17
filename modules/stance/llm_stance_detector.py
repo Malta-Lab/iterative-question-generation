@@ -7,21 +7,21 @@ class LLMStanceDetector:
     def classify(self, claim, evidence):
 
         prompt = f"""
-You are a fact-checking assistant.
+            You are a fact-checking assistant.
 
-Claim:
-{claim}
+            Claim:
+            {claim}
 
-Evidence:
-{evidence}
+            Evidence:
+            {evidence}
 
-Does the evidence SUPPORT, REFUTE, or is it IRRELEVANT to the claim?
+            Does the evidence SUPPORT, REFUTE, or is it IRRELEVANT to the claim?
 
-Respond with exactly one word:
-SUPPORT
-REFUTE
-IRRELEVANT
-"""
+            Respond with exactly one word:
+            SUPPORT
+            REFUTE
+            IRRELEVANT
+        """
 
         response = self.llm.generate(prompt).strip().upper()
 
