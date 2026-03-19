@@ -9,3 +9,5 @@ trafilatura
 python-dotenv
 serpapi
 google-search-results
+#duckduckgo_search
+ddgs
