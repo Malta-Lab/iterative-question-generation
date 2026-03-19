@@ -8,24 +8,43 @@ class ResultWriter:
 
     def add(self, item, result):
 
-        qa_with_evidence = []
+        steps = []
 
-        for qa in result.qa_pairs:
+        num_steps = len(result.qa_pairs)
 
-            qa_with_evidence.append({
-                "question": qa["question"],
-                "answer": qa["answer"],
-                "evidence": result.evidence  # 🔥 aqui pode melhorar depois
-            })
+        for i in range(num_steps):
+
+            qa = result.qa_pairs[i]
+
+            # tenta pegar evidence por step (ideal)
+            if isinstance(result.evidence, list) and i < len(result.evidence):
+                evidence = result.evidence[i]
+            else:
+                evidence = result.evidence  # fallback (não ideal)
+
+            # tenta pegar stance por step
+            if isinstance(result.stances, list) and i < len(result.stances):
+                stance = result.stances[i]
+            else:
+                stance = None
+
+            step = {
+                "question": qa.get("question"),
+                "answer": qa.get("answer"),
+                "evidence": evidence,
+                "stance": stance
+            }
+
+            steps.append(step)
 
         self.results.append({
-            "claim": item["claim"],
+            "claim": item.get("claim"),
             "prediction": result.verdict,
             "gold_label": item.get("label"),
 
             "pipeline": {
-                "qa": qa_with_evidence,
-                "stances": result.stances
+                "steps": steps,
+                "final_verdict": result.verdict
             }
         })
 
