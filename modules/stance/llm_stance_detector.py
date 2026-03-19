@@ -20,23 +20,22 @@ class LLMStanceDetector:
         Labels:
 
         SUPPORT:
-        - Evidence clearly confirms the claim
+        The evidence clearly confirms the claim.
 
         REFUTE:
-        - Evidence clearly contradicts the claim
+        The evidence clearly contradicts the claim OR explicitly states that it is false, fake, a hoax, or did not happen.
 
         NOT ENOUGH EVIDENCE:
-        - Evidence is insufficient, unclear, or unrelated
+        The evidence does not provide enough information to verify the claim.
 
-        CONFLICTING EVIDENCE CHERRYPICKING:
-        - Evidence contains both supporting and contradicting information
-        - Or selectively presents partial information
+        CONFLICTING EVIDENCE/CHERRYPICKING:
+        The evidence contains both supporting and contradicting information.
 
-        Instructions:
-        - Consider the claim date when interpreting evidence
-        - Do NOT assume the claim is true
-        - If uncertain, choose NOT ENOUGH EVIDENCE
-        - Be strict in your decision
+        Decision rules:
+        - If the evidence says "fake", "false", "hoax", or "did not happen" → REFUTE
+        - If the evidence denies the claim → REFUTE
+        - Only choose NOT ENOUGH EVIDENCE if there is truly no clear conclusion
+        - Do NOT be overly cautious
 
         Output:
         Respond with ONLY one label.
@@ -44,16 +43,16 @@ class LLMStanceDetector:
 
         response = self.llm.generate(prompt).strip().upper()
 
-        if response == "SUPPORT":
+        if "SUPPORT" in response:
             return "SUPPORT"
-        elif response == "REFUTE":
+        elif "REFUTE" in response:
             return "REFUTE"
-        elif response == "NOT ENOUGH EVIDENCE":
+        elif "CONFLICTING" in response:
+            return "CONFLICTING EVIDENCE/CHERRYPICKING"
+        elif "NOT ENOUGH" in response:
             return "NOT ENOUGH EVIDENCE"
-        elif response == "CONFLICTING EVIDENCE CHERRYPICKING":
-            return "CONFLICTING EVIDENCE CHERRYPICKING"
         else:
-            return "NOT ENOUGH EVIDENCE"
+            return "..."
 
     def run(self, context):
 

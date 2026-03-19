@@ -1,73 +1,95 @@
 [
   {
     "claim": "In a letter to Steve Jobs, Sean Connery refused to appear in an apple commercial.",
-    "prediction": "not enough evidence",
+    "prediction": "refuted",
     "gold_label": "Refuted",
     "pipeline": {
       "questions": [
-        "1. Is there any credible source (e.g., news article, book, document) that confirms Sean Connery wrote a letter to Steve Jobs?",
-        "2. What is the exact date (month/year) when Sean Connery allegedly wrote the letter to Steve Jobs? (Considering the claim date of 31-10-2020)",
-        "3. Is there any evidence that Apple was planning to feature Sean Connery in an advertisement around the time the letter was allegedly written?",
-        "4. Can you provide a quote or a direct citation from the letter, if it exists, where Sean Connery refuses to appear in an Apple commercial?",
-        "5. Were there any public statements or interviews given by Steve Jobs or his team about receiving a letter from Sean Connery regarding an advertisement?"
+        "1. What is the date of the letter allegedly written by Sean Connery to Steve Jobs?",
+        "2. Is there any evidence or documentation that confirms Sean Connery's involvement in negotiations with Apple about a potential commercial appearance?",
+        "3. Can you provide a credible source that mentions Sean Connery rejecting an offer from Apple, specifically stating it was for a commercial?",
+        "4. Were there any official statements or communications released by Steve Jobs or Apple that reference Sean Connery's alleged rejection of an Apple commercial offer?",
+        "5. Does the claim coincide with any known events or dates in Sean Connery's career during the time he might have been approached by Apple (if it indeed happened)?"
+      ],
+      "qa_pairs": [
+        {
+          "question": "1. What is the date of the letter allegedly written by Sean Connery to Steve Jobs?",
+          "answer": "The date of the letter allegedly written by Sean Connery to Steve Jobs is not mentioned in the letter itself, but according to the text, it was purportedly written in December 1998. However, this information is irrelevant as the entire letter is confirmed to be fake."
+        },
+        {
+          "question": "2. Is there any evidence or documentation that confirms Sean Connery's involvement in negotiations with Apple about a potential commercial appearance?",
+          "answer": "There is no evidence that confirms Sean Connery's involvement in negotiations with Apple about a potential commercial appearance. A fake letter, which was published on the satirical website Scoopertino in 2011, claimed that Connery refused to appear in an Apple commercial and insulted Steve Jobs. However, this letter has been confirmed as false by multiple sources."
+        },
+        {
+          "question": "3. Can you provide a credible source that mentions Sean Connery rejecting an offer from Apple, specifically stating it was for a commercial?",
+          "answer": "There is no credible source that mentions Sean Connery rejecting an offer from Apple for a commercial. The provided evidence shows that the letter claiming this is fake and was published on a satirical website called Scoopertino in 2011 as a humorous article, not a real event."
+        },
+        {
+          "question": "4. Were there any official statements or communications released by Steve Jobs or Apple that reference Sean Connery's alleged rejection of an Apple commercial offer?",
+          "answer": "There is no official statement or communication from Steve Jobs or Apple referencing Sean Connery's alleged rejection of an Apple commercial offer. The viral letter claiming otherwise was found to be fake, published on the satirical website Scoopertino in 2011."
+        },
+        {
+          "question": "5. Does the claim coincide with any known events or dates in Sean Connery's career during the time he might have been approached by Apple (if it indeed happened)?",
+          "answer": "There is no evidence that Sean Connery was approached by Apple to appear in an advertisement. The claim of a letter from Connery to Steve Jobs refusing such an offer is based on a fake letter published on the satirical website Scoopertino in 2011, not on any actual event or date."
+        }
       ],
       "evidence": [
         {
-          "text": "'I am f****** James Bond': Sean Connery letter to Steve Jobs rejecting offer to appear in Apple ad revealed to be fake Thousands of James Bond fans were today taken in by a spoof letter from Sean Conney to Apple boss Steve Jobs in which the film star launches a rant at the computer chief. The faked A4 letter on 007 paper was published online claiming to have been a response from Connery to a request to feature in an advert for Apple. It purportedly shows Connery aggressively declining the offer and telling Jobs 'You are a computer salesman -",
-          "bm25_score": 57.37180952076094,
-          "rerank_score": 9.3362455368042
-        },
-        {
-          "text": "No, Sean Connery Never Wrote a Rude letter to Apple's Steve Jobs Sir Sean Connery never sent a typewritten letter to late Apple Co-founder Steve Jobs in 1998 refusing to be in an Apple ad, and a fake such letter made the rounds on social media after his death. Sir Sean Connery never sent a typewritten letter to late Apple Co-founder Steve Jobs in 1998 refusing to be in an Apple ad, and a fake such letter made the rounds on social media after his death. The typewritten letter purports to show Connery’s outrage over Jobs asking him to appear",
-          "bm25_score": 53.198348659693394,
-          "rerank_score": 9.33358097076416
-        },
-        {
-          "text": "the world' as you suggest. You have nothing I need or want. You're a computer salesman - and I'm a f*cking JAMES BOND! I can't think of a quicker way to ruin my career than to appear in one of your awful commercials. Best regards, Sean Connery.\" It quickly became clear that the letter was written by the creators of a satirical website about Applu called Scoopertino. Sean Connery did not actually send Steve Jobs a typewritten letter in 1998 refusing to appear in the company's commercial. Apple. The fake letter was part of a satirical article on the website,",
-          "bm25_score": 56.07282664904696,
-          "rerank_score": 8.820548057556152
-        },
-        {
-          "text": "was created by the satirical Apple-focused site, Scoopertino. First, the bad news. Sean Connery never actually sent a typewritten letter to Steve Jobs in 1998 refusing to be in an Apple ad. But the awesome news is that quite a few people believe Connery owns personalized stationery with a “007” vanity stamp in the corner and that he would have no qualms using it to dash off a letter dressing down Jobs by declaring “…you are a computer salesman. I am f%$^ing JAMES BOND!” The letter was actually part of a satirical article on the previously little known (and very",
-          "bm25_score": 52.12532325774563,
-          "rerank_score": 8.804670333862305
-        },
-        {
           "text": "Sean Connery did not insult Steve Jobs by calling him salesman, viral letter is fake There is a viral letter going around on social media claiming that Sean Connery once insulted Steve Jobs saying \"You are a computer salesman, I am fucking JAMES BOND\" and refused to do an Apple ad. But did it really happen? In the wake of actor Sean Connery’s death, a fake letter, purportedly from him to Apple co-founder Steve Jobs, is going viral on social media. Sean, the original James Bond of Hollywood, was known for never mincing his words. In 2005, when he took",
-          "bm25_score": 58.75665343148913,
+          "bm25_score": 35.03700489926621,
           "rerank_score": 8.313972473144531
+        },
+        {
+          "text": "A fake letter is being circulated to claim that it was written by actor Sean Connery, best known for his big screen portrayal of James Bond, and is addressed to late Apple Co-founder Steve Jobs wherein Connery refused to be associated with Apple. However, the letter was published in 2011 on a satirical website called Scoopertino and carries no truth. This comes in the backdrop of the actor’s death at the age of 90 on Saturday, 31 October. CLAIM A portion of the letter allegedly signed in December 1998 reads: “I will say this one more time. You do understand",
+          "bm25_score": 36.40460050143126,
+          "rerank_score": 7.8050737380981445
+        },
+        {
+          "text": "media. Sean, the original James Bond of Hollywood, was known for never mincing his words. In 2005, when he took a break from acting he said he was doing it because the “idiots are making films in Hollywood.” Now, outspoken as he was, he did not write a rude letter to Steve Jobs. That letter is fake. The letter, which was apparently written on a typewriter in 1998, shows Connery unleashing his wrath at Jobs for asking him to appear in one of the Apple commercials. \"I will say this one more time. You do understand English, don’t you? I",
+          "bm25_score": 28.573841961304495,
+          "rerank_score": 7.249966621398926
+        },
+        {
+          "text": "An image of a purported 1998 letter from actor Sean Connery (famous for his portrayal of agent James Bond) to Apple CEO Steve Jobs, caustically rebuffing an offer to become a pitchman for Apple Computers, hit the Internet in June 2011. Despite the letter's seeming verisimilitude, it was merely a bit of humor created as an accompaniment to an article published on the satirical site Scoopertino, which spoofs on all things Apple under the motto \"All the News That's Fit to Fabricate\". Scoopertino's 19 June 2011 article entitled \"EXPOSED: The iMac disaster that almost was\" purported to offer a (fictional)",
+          "bm25_score": 31.28757691103589,
+          "rerank_score": 5.329479217529297
+        },
+        {
+          "text": "the revolutionary computer “Double-O-Mac”), instructed his agency to begin work on a special celebrity Christmas ad featuring 007 himself, Sean Connery — even though Connery had yet to be signed,” the article read. The website describes itself as “an imaginary news organisation devoted to ferreting out the most relevant stories in the world of Apple, whether or not they actually occurred.” “All the news that’s fit to fabricate,” is the tagline of Scoopertino. In 2011, regarding the fake letter, Washington Post had reported “Wishful thinkers have been delighting in actor Sean Connery’s pointed refusal to be Apple’s iMac spokesman.” Further,",
+          "bm25_score": 27.559678554453193,
+          "rerank_score": 5.2305426597595215
         }
       ],
       "stances": [
         {
-          "text": "'I am f****** James Bond': Sean Connery letter to Steve Jobs rejecting offer to appear in Apple ad revealed to be fake Thousands of James Bond fans were today taken in by a spoof letter from Sean Conney to Apple boss Steve Jobs in which the film star launches a rant at the computer chief. The faked A4 letter on 007 paper was published online claiming to have been a response from Connery to a request to feature in an advert for Apple. It purportedly shows Connery aggressively declining the offer and telling Jobs 'You are a computer salesman -",
-          "label": "not enough evidence",
-          "bm25_score": 57.37180952076094,
-          "rerank_score": 9.3362455368042
-        },
-        {
-          "text": "No, Sean Connery Never Wrote a Rude letter to Apple's Steve Jobs Sir Sean Connery never sent a typewritten letter to late Apple Co-founder Steve Jobs in 1998 refusing to be in an Apple ad, and a fake such letter made the rounds on social media after his death. Sir Sean Connery never sent a typewritten letter to late Apple Co-founder Steve Jobs in 1998 refusing to be in an Apple ad, and a fake such letter made the rounds on social media after his death. The typewritten letter purports to show Connery’s outrage over Jobs asking him to appear",
-          "label": "not enough evidence",
-          "bm25_score": 53.198348659693394,
-          "rerank_score": 9.33358097076416
-        },
-        {
-          "text": "the world' as you suggest. You have nothing I need or want. You're a computer salesman - and I'm a f*cking JAMES BOND! I can't think of a quicker way to ruin my career than to appear in one of your awful commercials. Best regards, Sean Connery.\" It quickly became clear that the letter was written by the creators of a satirical website about Applu called Scoopertino. Sean Connery did not actually send Steve Jobs a typewritten letter in 1998 refusing to appear in the company's commercial. Apple. The fake letter was part of a satirical article on the website,",
-          "label": "not enough evidence",
-          "bm25_score": 56.07282664904696,
-          "rerank_score": 8.820548057556152
-        },
-        {
-          "text": "was created by the satirical Apple-focused site, Scoopertino. First, the bad news. Sean Connery never actually sent a typewritten letter to Steve Jobs in 1998 refusing to be in an Apple ad. But the awesome news is that quite a few people believe Connery owns personalized stationery with a “007” vanity stamp in the corner and that he would have no qualms using it to dash off a letter dressing down Jobs by declaring “…you are a computer salesman. I am f%$^ing JAMES BOND!” The letter was actually part of a satirical article on the previously little known (and very",
-          "label": "not enough evidence",
-          "bm25_score": 52.12532325774563,
-          "rerank_score": 8.804670333862305
-        },
-        {
           "text": "Sean Connery did not insult Steve Jobs by calling him salesman, viral letter is fake There is a viral letter going around on social media claiming that Sean Connery once insulted Steve Jobs saying \"You are a computer salesman, I am fucking JAMES BOND\" and refused to do an Apple ad. But did it really happen? In the wake of actor Sean Connery’s death, a fake letter, purportedly from him to Apple co-founder Steve Jobs, is going viral on social media. Sean, the original James Bond of Hollywood, was known for never mincing his words. In 2005, when he took",
-          "label": "not enough evidence",
-          "bm25_score": 58.75665343148913,
+          "label": "refute",
+          "bm25_score": 35.03700489926621,
           "rerank_score": 8.313972473144531
+        },
+        {
+          "text": "A fake letter is being circulated to claim that it was written by actor Sean Connery, best known for his big screen portrayal of James Bond, and is addressed to late Apple Co-founder Steve Jobs wherein Connery refused to be associated with Apple. However, the letter was published in 2011 on a satirical website called Scoopertino and carries no truth. This comes in the backdrop of the actor’s death at the age of 90 on Saturday, 31 October. CLAIM A portion of the letter allegedly signed in December 1998 reads: “I will say this one more time. You do understand",
+          "label": "refute",
+          "bm25_score": 36.40460050143126,
+          "rerank_score": 7.8050737380981445
+        },
+        {
+          "text": "media. Sean, the original James Bond of Hollywood, was known for never mincing his words. In 2005, when he took a break from acting he said he was doing it because the “idiots are making films in Hollywood.” Now, outspoken as he was, he did not write a rude letter to Steve Jobs. That letter is fake. The letter, which was apparently written on a typewriter in 1998, shows Connery unleashing his wrath at Jobs for asking him to appear in one of the Apple commercials. \"I will say this one more time. You do understand English, don’t you? I",
+          "label": "refute",
+          "bm25_score": 28.573841961304495,
+          "rerank_score": 7.249966621398926
+        },
+        {
+          "text": "An image of a purported 1998 letter from actor Sean Connery (famous for his portrayal of agent James Bond) to Apple CEO Steve Jobs, caustically rebuffing an offer to become a pitchman for Apple Computers, hit the Internet in June 2011. Despite the letter's seeming verisimilitude, it was merely a bit of humor created as an accompaniment to an article published on the satirical site Scoopertino, which spoofs on all things Apple under the motto \"All the News That's Fit to Fabricate\". Scoopertino's 19 June 2011 article entitled \"EXPOSED: The iMac disaster that almost was\" purported to offer a (fictional)",
+          "label": "refute",
+          "bm25_score": 31.28757691103589,
+          "rerank_score": 5.329479217529297
+        },
+        {
+          "text": "the revolutionary computer “Double-O-Mac”), instructed his agency to begin work on a special celebrity Christmas ad featuring 007 himself, Sean Connery — even though Connery had yet to be signed,” the article read. The website describes itself as “an imaginary news organisation devoted to ferreting out the most relevant stories in the world of Apple, whether or not they actually occurred.” “All the news that’s fit to fabricate,” is the tagline of Scoopertino. In 2011, regarding the fake letter, Washington Post had reported “Wishful thinkers have been delighting in actor Sean Connery’s pointed refusal to be Apple’s iMac spokesman.” Further,",
+          "label": "refute",
+          "bm25_score": 27.559678554453193,
+          "rerank_score": 5.2305426597595215
         }
       ]
     }
