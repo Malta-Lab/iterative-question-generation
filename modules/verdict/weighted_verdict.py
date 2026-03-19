@@ -6,19 +6,40 @@ class WeightedVerdict(BaseVerdict):
 
     def run(self, context):
 
-        scores = defaultdict(int)
+        scores = defaultdict(float)
 
         for stance in context.stances:
 
-            label = stance["label"].lower()
+            label = stance["label"].upper()
 
-            scores[label] += 1
+            # 🔧 normalização
+            if label in ["SUPPORT", "SUPPORTED"]:
+                label = "SUPPORT"
+            elif label in ["REFUTE", "REFUTED"]:
+                label = "REFUTE"
+            elif "NOT ENOUGH" in label:
+                label = "NOT ENOUGH EVIDENCE"
+            elif "CONFLICTING" in label:
+                label = "CONFLICTING EVIDENCE/CHERRYPICKING"
 
+            # 🔥 peso (prioriza reranker)
+            weight = stance.get("rerank_score")
+
+            if weight is None:
+                weight = stance.get("bm25_score", 1.0)
+
+            if weight is None:
+                weight = 1.0
+
+            # 🔥 opcional: penalizar NEI (recomendado)
+            if label == "NOT ENOUGH EVIDENCE":
+                weight *= 0.5
+
+            scores[label] += weight
 
         if not scores:
-            context.verdict = "not enough evidence"
+            context.verdict = "NOT ENOUGH EVIDENCE"
             return context
-
 
         verdict = max(scores, key=scores.get)
 

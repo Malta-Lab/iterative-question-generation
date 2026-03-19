@@ -10,29 +10,47 @@ class RuleVerdict(BaseVerdict):
 
         for s in context.stances:
             if isinstance(s, dict):
-                stances.append(s["label"].lower())
-
+                label = s["label"]
             elif isinstance(s, tuple):
-                # (evidence, label)
-                stances.append(s[1].lower())
+                label = s[1]
+            else:
+                continue
+
+            label = label.upper()
+
+            # 🔧 normalização
+            if label in ["SUPPORT", "SUPPORTED"]:
+                label = "SUPPORT"
+            elif label in ["REFUTE", "REFUTED"]:
+                label = "REFUTE"
+            elif "NOT ENOUGH" in label:
+                label = "NOT ENOUGH EVIDENCE"
+            elif "CONFLICTING" in label:
+                label = "CONFLICTING EVIDENCE/CHERRYPICKING"
+
+            stances.append(label)
+
+        if not stances:
+            context.verdict = "NOT ENOUGH EVIDENCE"
+            return context
 
         counts = Counter(stances)
 
-        support = counts.get("support", 0) + counts.get("supported", 0)
-        refute = counts.get("refute", 0) + counts.get("refuted", 0)
-        nee = counts.get("not enough evidence", 0)
+        support = counts.get("SUPPORT", 0)
+        refute = counts.get("REFUTE", 0)
+        nee = counts.get("NOT ENOUGH EVIDENCE", 0)
 
         if support > refute and support > nee:
-            verdict = "supported"
+            verdict = "SUPPORT"
 
         elif refute > support and refute > nee:
-            verdict = "refuted"
+            verdict = "REFUTE"
 
         elif support == 0 and refute == 0:
-            verdict = "not enough evidence"
+            verdict = "NOT ENOUGH EVIDENCE"
 
         else:
-            verdict = "conflicting"
+            verdict = "CONFLICTING EVIDENCE/CHERRYPICKING"
 
         context.verdict = verdict
 

@@ -1,4 +1,4 @@
 __pycache__
 .env
 cache/
-results_dev.json/
+results_dev.json

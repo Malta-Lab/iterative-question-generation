@@ -1,11 +1,12 @@
 import requests
+from config import Config
 from utils.cache_utils import load_cache, save_cache
 
 
 class BraveSearch:
 
-    def __init__(self, api_key):
-        self.api_key = api_key
+    def __init__(self):
+        self.api_key = Config.BRAVE_API_KEY
         self.cache = load_cache()
 
     def search(self, query):
