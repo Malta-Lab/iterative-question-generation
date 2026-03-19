@@ -23,22 +23,35 @@ class LLMStanceDetector:
         Labels:
 
         SUPPORTED:
-        The evidence clearly confirms the claim.
+        The evidence clearly supports the claim.
 
         REFUTED:
-        The evidence clearly contradicts the claim OR explicitly states that it is false, fake, a hoax, or did not happen.
+        The evidence clearly contradicts the claim OR shows that it is false, fake, misleading, or did not happen.
 
         NOT ENOUGH EVIDENCE:
-        The evidence does not provide enough information to verify the claim.
+        There is insufficient relevant evidence to make a decision.
 
         CONFLICTING EVIDENCE/CHERRYPICKING:
-        The evidence contains both supporting and contradicting information.
+        There is strong evidence both supporting and refuting the claim, and it is genuinely unclear which is correct.
 
         Decision rules:
-        - If the evidence says "fake", "false", "hoax", or "did not happen" → REFUTED
-        - If the evidence denies the claim → REFUTED
-        - Only choose NOT ENOUGH EVIDENCE if there is truly no clear conclusion
-        - Do NOT be overly cautious
+
+        - If the evidence explicitly says "false", "fake", "hoax", or "did not happen" → REFUTED
+        - If the evidence contradicts the claim → REFUTED
+        - If the evidence supports the claim → SUPPORTED
+
+        CRITICAL RULES:
+
+        - Do NOT use CONFLICTING as a default.
+        - Use CONFLICTING ONLY if there is clear, strong evidence on BOTH sides.
+
+        - If the claim is specific and strong (numbers, events, accusations) and there is NO solid supporting evidence → REFUTED
+
+        - If evidence is weak, partial, or slightly unclear, choose the MOST LIKELY label (SUPPORTED or REFUTED)
+
+        - Only choose NOT ENOUGH EVIDENCE when there is almost no relevant information.
+
+        - You MUST make a decisive judgment. Do NOT be overly cautious.
 
         Output:
         Respond with ONLY one label.
