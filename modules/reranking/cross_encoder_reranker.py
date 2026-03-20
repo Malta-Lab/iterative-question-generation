@@ -3,36 +3,41 @@ from config import Config
 
 
 class CrossEncoderReranker:
-    def __init__(self, model_name=None):
-        self.model_name = model_name or Config.RERANK_MODEL
-        self.model = CrossEncoder(self.model_name)
-        self.top_k = Config.RERANK_TOP_K
+
+    def __init__(self, model_name=None, top_k=None, threshold=None):
+        self.model = CrossEncoder(model_name or Config.RERANKER_MODEL)
+        self.top_k = top_k or Config.RERANKER_TOP_K
+        self.threshold = threshold or Config.RERANKER_THRESHOLD
 
     def run(self, context):
-
-        if len(context.evidence) == 0:
+        if not hasattr(context, "passages") or not context.passages:
             context.evidence = []
             return context
 
-        passages = [e["text"] for e in context.evidence]
-        bm25_scores = {e["text"]: e["bm25_score"] for e in context.evidence}
+        if Config.USE_QUESTION_FOR_RETRIEVAL and hasattr(context, "questions") and context.questions:
+            query = " ".join(context.questions)
+        else:
+            query = context.claim
 
-        pairs = [(context.claim, p) for p in passages]
+        pairs = [(query, p["text"]) for p in context.passages]
         scores = self.model.predict(pairs)
 
-        ranked = sorted(
-            zip(passages, scores),
-            key=lambda x: x[1],
-            reverse=True
-        )
+        scored = list(zip(context.passages, scores))
+        scored.sort(key=lambda x: x[1], reverse=True)
+
+        filtered = [(p, s) for p, s in scored if s >= self.threshold]
+
+        if not filtered:
+            filtered = scored[:self.top_k]
+
+        top_passages = filtered[:self.top_k]
 
         context.evidence = [
             {
-                "text": p,
-                "bm25_score": bm25_scores.get(p),
+                "text": p["text"],
                 "rerank_score": float(s)
             }
-            for p, s in ranked[:self.top_k]
+            for p, s in top_passages
         ]
 
         return context

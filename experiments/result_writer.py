@@ -1,6 +1,7 @@
 import os
 import json
 
+
 class ResultWriter:
 
     def __init__(self):
@@ -9,31 +10,24 @@ class ResultWriter:
     def add(self, item, result):
         steps = []
 
-        num_steps = len(result.qa_pairs)
+        qa_pairs = result.qa_pairs or []
+        stances = result.stances or []
+        evidences = result.evidence or []
 
-        for i in range(num_steps):
+        # 🔥 garante lista de evidências
+        if not isinstance(evidences, list):
+            evidences = [evidences]
 
-            qa = result.qa_pairs[i]
+        for i, qa in enumerate(qa_pairs):
 
-            # pega evidence do step
-            if isinstance(result.evidence, list) and i < len(result.evidence):
-                evidence_list = result.evidence[i]
-            else:
-                evidence_list = result.evidence
-
-            # garante que é lista
-            if not isinstance(evidence_list, list):
-                evidence_list = [evidence_list]
-
-            # pega stance do step
-            if isinstance(result.stances, list) and i < len(result.stances):
-                stance = result.stances[i]
-            else:
-                stance = None
+            # pega stance correspondente
+            stance = None
+            if isinstance(stances, list) and i < len(stances):
+                stance = stances[i]
 
             processed_evidence = []
 
-            for ev in evidence_list:
+            for ev in evidences:
 
                 if isinstance(ev, dict):
                     processed_evidence.append({
@@ -68,7 +62,6 @@ class ResultWriter:
         })
 
     def save(self, path):
-
         os.makedirs(os.path.dirname(path), exist_ok=True)
 
         with open(path, "w", encoding="utf-8") as f:

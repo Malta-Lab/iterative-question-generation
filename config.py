@@ -12,6 +12,7 @@ class Config:
 
     # Search
     SEARCH_ENGINE = os.getenv("SEARCH_ENGINE", "brave")
+    SEARCH_MAX_WORKERS = int(os.getenv("SEARCH_MAX_WORKERS", 5))
     SEARCH_MAX_RESULTS = int(os.getenv("SEARCH_MAX_RESULTS", 10))
     SEARCH_MAX_URLS = int(os.getenv("SEARCH_MAX_URLS", 50))
 
@@ -22,10 +23,16 @@ class Config:
     GOOGLE_CSE_ID = os.getenv("GOOGLE_CSE_ID")
 
     # Retrieval
-    BM25_TOP_K = int(os.getenv("BM25_TOP_K", 10))
-    RERANK_MODEL = os.getenv("RERANK_MODEL", "cross-encoder/ms-marco-MiniLM-L-6-v2")
-    RERANK_TOP_K = int(os.getenv("RERANK_TOP_K", 5))
-    USE_RERANKER = os.getenv("USE_RERANKER", "true").lower() == "true"
+    BM25_TOP_K = int(os.getenv("BM25_TOP_K", 5))
+
+    # Reranking
+    RERANKER_MODEL = os.getenv("RERANKER_MODEL", "cross-encoder/ms-marco-MiniLM-L-6-v2")
+    RERANKER_TOP_K = int(os.getenv("RERANKER_TOP_K", 3))
+    RERANKER_THRESHOLD = float(os.getenv("RERANKER_THRESHOLD", 0.3))
+    
+
+    # Passages
+    CHUNK_SIZE = int(os.getenv("CHUNK_SIZE", 300))
 
     # Pipeline
     MAX_QUESTIONS = int(os.getenv("MAX_QUESTIONS", 5))
@@ -34,3 +41,10 @@ class Config:
     # Debug
     #SAVE_INTERMEDIATE = os.getenv("SAVE_INTERMEDIATE", "true").lower() == "true"
     #VERBOSE = os.getenv("VERBOSE", "false").lower() == "true"
+
+
+
+
+    # ===== FLAGS =====
+    USE_RERANKER = os.getenv("USE_RERANKER", "true").lower() == "true"
+    USE_QUESTION_FOR_RETRIEVAL = os.getenv("USE_QUESTION_FOR_RETRIEVAL", "true").lower() == "true"

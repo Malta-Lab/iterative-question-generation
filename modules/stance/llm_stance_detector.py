@@ -1,75 +1,163 @@
+from typing import Tuple
+
+
 class LLMStanceDetector:
+
+    SUPPORTED = "SUPPORTED"
+    REFUTED = "REFUTED"
+    NEE = "NOT ENOUGH EVIDENCE"
+    CONFLICT = "CONFLICTING EVIDENCE/CHERRYPICKING"
+
+    NEGATION_CUES = [
+        "false",
+        "incorrect",
+        "misattributed",
+        "no evidence",
+        "did not",
+        "not true",
+        "never",
+        "wrongly",
+        "debunked",
+        "no proof",
+        "without evidence",
+        "fabricated",
+        "fake",
+        "hoax"
+    ]
 
     def __init__(self, llm):
         self.llm = llm
 
-    def classify(self, claim, evidence_text, claim_date, speaker):
+    # -----------------------------
+    # 🧠 PROMPT (corrigido)
+    # -----------------------------
+    def build_prompt(self, claim, evidence_text, claim_date, speaker):
+        return f"""
+Task: Determine how the evidence relates to the claim.
 
-        prompt = f"""
-        Task: Determine the relationship between the claim and the evidence.
+You must classify the relationship as:
+SUPPORTED, REFUTED, NOT ENOUGH EVIDENCE, or CONFLICTING EVIDENCE/CHERRYPICKING.
 
-        Claim:
-        {claim}
+---
 
-        Claim date:
-        {claim_date}
+Claim:
+{claim}
 
-        Speaker:
-        {speaker}
+Claim date:
+{claim_date}
 
-        Evidence:
-        {evidence_text}
+Speaker:
+{speaker}
 
-        Labels:
+---
 
-        SUPPORTED:
-        The evidence clearly supports the claim.
+Evidence:
+{evidence_text}
 
-        REFUTED:
-        The evidence clearly contradicts the claim OR shows that it is false, fake, misleading, or did not happen.
+---
 
-        NOT ENOUGH EVIDENCE:
-        There is insufficient relevant evidence to make a decision.
+DEFINITIONS:
 
-        CONFLICTING EVIDENCE/CHERRYPICKING:
-        There is strong evidence both supporting and refuting the claim, and it is genuinely unclear which is correct.
+SUPPORTED:
+The evidence clearly confirms the claim.
 
-        Decision rules:
+REFUTED:
+The evidence contradicts the claim OR shows that the claim is false, incorrect, misleading, or misattributed.
 
-        - If the evidence explicitly says "false", "fake", "hoax", or "did not happen" → REFUTED
-        - If the evidence contradicts the claim → REFUTED
-        - If the evidence supports the claim → SUPPORTED
+NOT ENOUGH EVIDENCE:
+The evidence does not provide enough information to verify or refute the claim.
 
-        CRITICAL RULES:
+CONFLICTING EVIDENCE:
+There is strong evidence both supporting and refuting the claim.
 
-        - Do NOT use CONFLICTING as a default.
-        - Use CONFLICTING ONLY if there is clear, strong evidence on BOTH sides.
+---
 
-        - If the claim is specific and strong (numbers, events, accusations) and there is NO solid supporting evidence → REFUTED
+CRITICAL RULES:
 
-        - If evidence is weak, partial, or slightly unclear, choose the MOST LIKELY label (SUPPORTED or REFUTED)
+1. Compare MEANING, not just keywords.
 
-        - Only choose NOT ENOUGH EVIDENCE when there is almost no relevant information.
+2. If the evidence says the claim is false, incorrect, misleading, misattributed, debunked → REFUTED
 
-        - You MUST make a decisive judgment. Do NOT be overly cautious.
+3. If a quote is wrongly attributed or reversed → REFUTED
 
-        Output:
-        Respond with ONLY one label.
-        """
+4. Pay attention to WHO said WHAT:
+   - If attribution differs → REFUTED
 
-        response = self.llm.generate(prompt).strip().upper()
+5. Similar wording ≠ support
 
-        if "SUPPORTED" in response:
-            return "SUPPORTED"
-        elif "REFUTED" in response:
-            return "REFUTED"
-        elif "CONFLICTING" in response:
-            return "CONFLICTING EVIDENCE/CHERRYPICKING"
-        elif "NOT ENOUGH" in response:
-            return "NOT ENOUGH EVIDENCE"
-        else:
-            return "..."
+6. If unclear → NOT ENOUGH EVIDENCE
 
+7. Be conservative:
+   - Prefer REFUTED over SUPPORTED if contradiction exists
+
+---
+
+Output:
+Return ONLY one label:
+SUPPORTED
+REFUTED
+NOT ENOUGH EVIDENCE
+CONFLICTING EVIDENCE/CHERRYPICKING
+"""
+
+    # -----------------------------
+    # 🔤 NORMALIZAÇÃO
+    # -----------------------------
+    def normalize_label(self, response: str) -> str:
+        if not response:
+            return self.NEE
+
+        response = response.strip().upper()
+
+        if response in [self.SUPPORTED, self.REFUTED, self.NEE, self.CONFLICT]:
+            return response
+
+        if "SUPPORT" in response:
+            return self.SUPPORTED
+
+        if "REFUTE" in response or "FALSE" in response:
+            return self.REFUTED
+
+        if "CONFLICT" in response:
+            return self.CONFLICT
+
+        if "NOT ENOUGH" in response or "INSUFFICIENT" in response:
+            return self.NEE
+
+        return self.NEE
+
+    # -----------------------------
+    # 🛠️ HEURÍSTICA ANTI-ERRO
+    # -----------------------------
+    def apply_heuristic(self, text: str, label: str) -> str:
+        text_lower = text.lower()
+
+        # 🔥 regra mais importante: evitar falso SUPPORT
+        if label == self.SUPPORTED:
+            if any(cue in text_lower for cue in self.NEGATION_CUES):
+                return self.REFUTED
+
+        return label
+
+    # -----------------------------
+    # 🎯 CLASSIFICAÇÃO
+    # -----------------------------
+    def classify(self, claim, evidence_text, claim_date, speaker) -> str:
+
+        prompt = self.build_prompt(claim, evidence_text, claim_date, speaker)
+
+        response = self.llm.generate(prompt)
+
+        label = self.normalize_label(response)
+
+        # 🔧 correção pós-LLM (crítica)
+        label = self.apply_heuristic(evidence_text, label)
+
+        return label
+
+    # -----------------------------
+    # 🔄 PIPELINE
+    # -----------------------------
     def run(self, context):
 
         stances = []
@@ -77,11 +165,16 @@ class LLMStanceDetector:
         for e in context.evidence:
             text = e["text"]
 
-            stance = self.classify(context.claim, text, context.claim_date, context.speaker)
+            stance = self.classify(
+                context.claim,
+                text,
+                context.claim_date,
+                context.speaker
+            )
 
             stances.append({
                 "text": text,
-                "label": stance.lower(),
+                "label": stance,
                 "bm25_score": e.get("bm25_score"),
                 "rerank_score": e.get("rerank_score")
             })

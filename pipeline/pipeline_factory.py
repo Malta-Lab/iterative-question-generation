@@ -15,40 +15,33 @@ from modules.verdict.majority_verdict import MajorityVerdict
 from modules.justification.justification_generator import JustificationGenerator
 
 
-def pipeline_rule_verdict():
+def averitec_pipeline():
     llm = OllamaLLM(Config.OLLAMA_MODEL)
-    
+
     pipeline = Pipeline(
         question_generator=QuestionGenerator(llm),
         searcher=get_searcher(),
         parser=DocumentParser(),
-        segmenter=PassageExtractor(),
-        retriever=BM25Retriever(),
-        stance_detector=LLMStanceDetector(llm),
+
+        retriever=BM25Retriever(
+            top_k=Config.BM25_TOP_K
+        ),
+
+        segmenter=PassageExtractor(
+            chunk_size=Config.CHUNK_SIZE
+        ),
+
+        reranker=CrossEncoderReranker(
+            model_name=Config.RERANKER_MODEL,
+            top_k=Config.RERANKER_TOP_K,
+            threshold=Config.RERANKER_THRESHOLD
+        ),
+
         qa_generator=QAGenerator(llm),
+        stance_detector=LLMStanceDetector(llm),
+
         verdict_predictor=RuleVerdict(),
         justification_generator=JustificationGenerator(llm),
-
-        reranker=CrossEncoderReranker()
-    )
-
-    return pipeline
-
-
-def pipeline_majority_verdict():
-    llm = OllamaLLM(Config.OLLAMA_MODEL)
-    
-    pipeline = Pipeline(
-        question_generator=QuestionGenerator(llm),
-        searcher=get_searcher(),
-        parser=DocumentParser(),
-        segmenter=PassageExtractor(),
-        retriever=BM25Retriever(),
-        stance_detector=LLMStanceDetector(llm),
-        qa_generator=QAGenerator(llm),
-        verdict_predictor=MajorityVerdict(),  
-        justification_generator=JustificationGenerator(llm),
-        reranker=CrossEncoderReranker()
     )
 
     return pipeline

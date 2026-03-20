@@ -14,6 +14,7 @@ def get_searcher():
         return DuckDuckGoSearch(
             max_results=Config.SEARCH_MAX_RESULTS,
             max_urls=Config.SEARCH_MAX_URLS,
+            max_workers=Config.SEARCH_MAX_WORKERS
         )
 
     if engine == "brave":

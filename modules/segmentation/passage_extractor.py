@@ -1,34 +1,32 @@
+from typing import List
+
+
 class PassageExtractor:
 
-    def __init__(self, chunk_size=100, overlap=20):
-
+    def __init__(self, chunk_size: int = 300):
         self.chunk_size = chunk_size
-        self.overlap = overlap
 
+    def chunk_text(self, text: str) -> List[str]:
+        words = text.split()
+        chunks = []
 
-    def chunk_text(self, text):
-        tokens = text.split()
-        passages = []
-        step = self.chunk_size - self.overlap
+        for i in range(0, len(words), self.chunk_size):
+            chunk = " ".join(words[i:i + self.chunk_size])
+            chunks.append(chunk)
 
-        for i in range(0, len(tokens), step):
-            chunk = tokens[i:i + self.chunk_size]
-
-            if len(chunk) < 30:
-                continue
-
-            passages.append(" ".join(chunk))
-
-        return passages
-
+        return chunks
 
     def run(self, context):
         passages = []
 
         for doc in context.documents:
             chunks = self.chunk_text(doc)
-            passages.extend(chunks)
+
+            for chunk in chunks:
+                passages.append({
+                    "text": chunk,
+                    "source": doc  # opcional, mas útil pra debug
+                })
 
         context.passages = passages
-
         return context

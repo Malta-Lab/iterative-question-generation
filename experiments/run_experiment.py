@@ -1,6 +1,7 @@
 import sys
 import os
 import json
+from datetime import datetime
 from tqdm import tqdm
 
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -8,7 +9,7 @@ project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if project_root not in sys.path:
     sys.path.append(project_root)
 
-from pipeline.pipeline_factory import pipeline_rule_verdict
+from pipeline.pipeline_factory import averitec_pipeline
 from pipeline.context import ClaimContext
 from experiment_config import ExperimentConfig
 from checkpoint import CheckpointManager
@@ -16,8 +17,9 @@ from result_writer import ResultWriter
 
 
 # 🔧 CONFIG
-VERBOSE = True          # liga/desliga debug
-PRINT_EVERY = 1         # imprime a cada N exemplos
+VERBOSE = True
+PRINT_EVERY = 1
+SAVE_EVERY = 10   # ⬅️ salva a cada N exemplos
 
 
 def load_dataset(path):
@@ -41,7 +43,23 @@ def print_step_debug(step, step_id):
 
 def run():
 
-    pipeline = pipeline_rule_verdict()  # depois podemos passar verbose=True
+    # 🧪 cria diretório único do experimento
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    run_dir = os.path.join("outputs", timestamp)
+    os.makedirs(run_dir, exist_ok=True)
+
+    print(f"\n📁 Run directory: {run_dir}")
+
+    # 🔧 pipeline
+    pipeline = averitec_pipeline()
+
+    # 💾 salva config do experimento
+    with open(os.path.join(run_dir, "config.json"), "w") as f:
+        json.dump({
+            "datasets": ExperimentConfig.DATASETS,
+            "model": os.getenv("OLLAMA_MODEL"),
+            "temperature": os.getenv("LLM_TEMPERATURE"),
+        }, f, indent=2)
 
     for dataset_cfg in ExperimentConfig.DATASETS:
 
@@ -52,7 +70,7 @@ def run():
 
         data = load_dataset(path)
 
-        ckpt = CheckpointManager(f"outputs/{name}.ckpt")
+        ckpt = CheckpointManager(os.path.join(run_dir, f"{name}.ckpt"))
         writer = ResultWriter()
 
         total = len(data)
@@ -68,7 +86,6 @@ def run():
             if ckpt.is_done(claim_id):
                 continue
 
-            # 🔥 HEADER DO EXEMPLO
             if VERBOSE and i % PRINT_EVERY == 0:
                 print("\n" + "="*80)
                 print(f"🧾 CLAIM {claim_id}")
@@ -83,7 +100,7 @@ def run():
 
             result = pipeline.run(context)
 
-            # 🔥 DEBUG DETALHADO
+            # 🧠 debug
             if VERBOSE and i % PRINT_EVERY == 0:
 
                 steps = getattr(result, "steps", [])
@@ -95,19 +112,23 @@ def run():
 
                 correct = (str(result.verdict).lower() == str(gt).lower())
                 status = "✅ CORRECT" if correct else "❌ WRONG"
+
                 print(f"\n   {status}")
                 print(f"   PRED: {result.verdict}")
                 print(f"   GT  : {gt}")
 
+            # 💾 salva resultado
             writer.add(item, result)
             ckpt.mark_done(claim_id)
 
+            # 💾 salvamento incremental
+            if i % SAVE_EVERY == 0:
+                writer.save(os.path.join(run_dir, f"{name}.json"))
+
             pbar.update(1)
 
-            if i % 10 == 0:
-                writer.save(f"outputs/{name}.json")
-
-        writer.save(f"outputs/{name}.json")
+        # 💾 save final
+        writer.save(os.path.join(run_dir, f"{name}.json"))
         pbar.close()
 
 
