@@ -1,5 +1,7 @@
 from config import Config
 
+from modules.claim_decomposition.claim_decomposer import ClaimDecomposer
+from modules.counterfactual.counterfactual_generator import CounterfactualGenerator
 from modules.search.search_factory import get_searcher
 from modules.verdict.llm_verdict import LLMVerdict
 from pipeline.pipeline import Pipeline
@@ -16,7 +18,11 @@ from modules.verdict.majority_verdict import MajorityVerdict
 from modules.justification.justification_generator import JustificationGenerator
 
 
-def averitec_pipeline():
+def averitec_pipeline(
+    use_atomic=False,
+    use_counterfactual=False,
+    use_rule_verdict=False
+):
     llm = OllamaLLM(Config.OLLAMA_MODEL)
 
     pipeline = Pipeline(
@@ -41,13 +47,25 @@ def averitec_pipeline():
         qa_generator=QAGenerator(llm),
         stance_detector=LLMStanceDetector(llm),
 
-        verdict_predictor=LLMVerdict(llm),
+        verdict_predictor=(
+            RuleVerdict() if use_rule_verdict else LLMVerdict(llm)
+        ),
+
         justification_generator=JustificationGenerator(llm),
+
+        # 🆕 plugáveis
+        claim_decomposer=ClaimDecomposer(llm) if use_atomic else None,
+        counterfactual_module=CounterfactualGenerator(llm) if use_counterfactual else None,
     )
 
     return pipeline
 
-def averitec_pipeline_with_rule_veredict():
+
+def averitec_pipeline_with_rule_veredict(
+    use_atomic=False,
+    use_counterfactual=False,
+    use_rule_verdict=True
+):
     llm = OllamaLLM(Config.OLLAMA_MODEL)
 
     pipeline = Pipeline(
@@ -72,8 +90,101 @@ def averitec_pipeline_with_rule_veredict():
         qa_generator=QAGenerator(llm),
         stance_detector=LLMStanceDetector(llm),
 
-        verdict_predictor=RuleVerdict(),
+        verdict_predictor=(
+            RuleVerdict() if use_rule_verdict else LLMVerdict(llm)
+        ),
+
         justification_generator=JustificationGenerator(llm),
+
+        # 🆕 plugáveis
+        claim_decomposer=ClaimDecomposer(llm) if use_atomic else None,
+        counterfactual_module=CounterfactualGenerator(llm) if use_counterfactual else None,
+    )
+
+    return pipeline
+
+
+def averitec_with_contrafactual_pipeline(
+    use_atomic=False,
+    use_counterfactual=True,
+    use_rule_verdict=False
+):
+    llm = OllamaLLM(Config.OLLAMA_MODEL)
+
+    pipeline = Pipeline(
+        question_generator=QuestionGenerator(llm),
+        searcher=get_searcher(),
+        parser=DocumentParser(),
+
+        retriever=BM25Retriever(
+            top_k=Config.BM25_TOP_K
+        ),
+
+        segmenter=PassageExtractor(
+            chunk_size=Config.CHUNK_SIZE
+        ),
+
+        reranker=CrossEncoderReranker(
+            model_name=Config.RERANKER_MODEL,
+            top_k=Config.RERANKER_TOP_K,
+            threshold=Config.RERANKER_THRESHOLD
+        ),
+
+        qa_generator=QAGenerator(llm),
+        stance_detector=LLMStanceDetector(llm),
+
+        verdict_predictor=(
+            RuleVerdict() if use_rule_verdict else LLMVerdict(llm)
+        ),
+
+        justification_generator=JustificationGenerator(llm),
+
+        # 🆕 plugáveis
+        claim_decomposer=ClaimDecomposer(llm) if use_atomic else None,
+        counterfactual_module=CounterfactualGenerator(llm) if use_counterfactual else None,
+    )
+
+    return pipeline
+
+
+def atomicon(
+    use_atomic=False,
+    use_counterfactual=False,
+    use_rule_verdict=True
+):
+    llm = OllamaLLM(Config.OLLAMA_MODEL)
+
+    pipeline = Pipeline(
+        question_generator=QuestionGenerator(llm),
+        searcher=get_searcher(),
+        parser=DocumentParser(),
+
+        retriever=BM25Retriever(
+            top_k=Config.BM25_TOP_K
+        ),
+
+        segmenter=PassageExtractor(
+            chunk_size=Config.CHUNK_SIZE
+        ),
+
+        reranker=CrossEncoderReranker(
+            model_name=Config.RERANKER_MODEL,
+            top_k=Config.RERANKER_TOP_K,
+            threshold=Config.RERANKER_THRESHOLD
+        ),
+
+        qa_generator=QAGenerator(llm),
+        stance_detector=LLMStanceDetector(llm),
+
+        verdict_predictor=(
+            RuleVerdict() if use_rule_verdict else LLMVerdict(llm)
+        ),
+
+        justification_generator=JustificationGenerator(llm),
+
+        # 🆕 plugáveis
+        claim_decomposer=ClaimDecomposer(llm) if use_atomic else None,
+        counterfactual_module=CounterfactualGenerator(llm) if use_counterfactual else None,
     )
 
     return pipeline
