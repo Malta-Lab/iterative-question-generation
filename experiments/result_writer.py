@@ -56,8 +56,7 @@ class ResultWriter:
             "gold_label": item.get("label"),
             "speaker": item.get("speaker"),
             "pipeline": {
-                "steps": steps,
-                "final_verdict": result.verdict
+                "steps": steps
             }
         })
 
