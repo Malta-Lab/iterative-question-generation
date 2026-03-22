@@ -11,8 +11,8 @@ class BM25Retriever:
         if not context.documents:
             return context
 
-        if Config.USE_QUESTION_FOR_RETRIEVAL and hasattr(context, "questions") and context.questions:
-            query = " ".join(context.questions)
+        if Config.USE_QUESTION_FOR_RETRIEVAL and context.questions:
+            query = context.questions[-1]  # 🔥 só a última pergunta
         else:
             query = context.claim
 
@@ -28,5 +28,17 @@ class BM25Retriever:
             reverse=True
         )
 
-        context.documents = [doc for doc, _ in ranked[:self.top_k]]
+        top_docs = [doc for doc, _ in ranked[:self.top_k]]
+
+        # 🆕 manter histórico sem duplicar
+        if not hasattr(context, "retrieved_documents"):
+            context.retrieved_documents = []
+
+        for doc in top_docs:
+            if doc not in context.retrieved_documents:
+                context.retrieved_documents.append(doc)
+
+        # manter compatibilidade com resto do pipeline
+        context.documents = top_docs
+        
         return context

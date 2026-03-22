@@ -9,36 +9,20 @@ class LLMStanceDetector:
     CONFLICT = "CONFLICTING EVIDENCE/CHERRYPICKING"
 
     NEGATION_CUES = [
-        "false",
-        "incorrect",
-        "misattributed",
-        "no evidence",
-        "did not",
-        "not true",
-        "never",
-        "wrongly",
-        "debunked",
-        "no proof",
-        "without evidence",
-        "fabricated",
-        "fake",
-        "hoax"
+        "false", "incorrect", "misattributed", "no evidence", "did not",
+        "not true", "never", "wrongly", "debunked", "no proof",
+        "without evidence", "fabricated", "fake", "hoax"
     ]
 
     def __init__(self, llm):
         self.llm = llm
 
     # -----------------------------
-    # 🧠 PROMPT (corrigido)
+    # PROMPT
     # -----------------------------
-    def build_prompt(self, claim, evidence_text, claim_date, speaker):
+    def build_prompt(self, claim, evidence_text, qa_answer, claim_date, speaker):
         return f"""
 Task: Determine how the evidence relates to the claim.
-
-You must classify the relationship as:
-SUPPORTED, REFUTED, NOT ENOUGH EVIDENCE, or CONFLICTING EVIDENCE/CHERRYPICKING.
-
----
 
 Claim:
 {claim}
@@ -49,59 +33,39 @@ Claim date:
 Speaker:
 {speaker}
 
----
-
 Evidence:
 {evidence_text}
 
----
-
-DEFINITIONS:
-
-SUPPORTED:
-The evidence clearly confirms the claim.
-
-REFUTED:
-The evidence contradicts the claim OR shows that the claim is false, incorrect, misleading, or misattributed.
-
-NOT ENOUGH EVIDENCE:
-The evidence does not provide enough information to verify or refute the claim.
-
-CONFLICTING EVIDENCE:
-There is strong evidence both supporting and refuting the claim.
+Answer derived from evidence:
+{qa_answer}
 
 ---
 
-CRITICAL RULES:
+Classify as:
+SUPPORTED, REFUTED, NOT ENOUGH EVIDENCE, or CONFLICTING EVIDENCE/CHERRYPICKING.
 
-1. Compare MEANING, not just keywords.
+Rules:
+- Use the answer AND evidence
+- If answer contradicts claim → REFUTED
+- If answer supports claim → SUPPORTED
+- If unclear → NOT ENOUGH EVIDENCE
 
-2. If the evidence says the claim is false, incorrect, misleading, misattributed, debunked → REFUTED
+IMPORTANT:
 
-3. If a quote is wrongly attributed or reversed → REFUTED
+If the evidence explicitly states that something is false, fake, fabricated, or debunked,
+you MUST classify it as REFUTED.
 
-4. Pay attention to WHO said WHAT:
-   - If attribution differs → REFUTED
+Lack of evidence can also imply REFUTATION if the claim asserts existence.
 
-5. Similar wording ≠ support
+If the claim asserts that something happened,
+and the evidence states it did NOT happen,
+this is REFUTED — not NOT ENOUGH EVIDENCE.
 
-6. If unclear → NOT ENOUGH EVIDENCE
-
-7. Be conservative:
-   - Prefer REFUTED over SUPPORTED if contradiction exists
-
----
-
-Output:
-Return ONLY one label:
-SUPPORTED
-REFUTED
-NOT ENOUGH EVIDENCE
-CONFLICTING EVIDENCE/CHERRYPICKING
+Output ONLY label.
 """
 
     # -----------------------------
-    # 🔤 NORMALIZAÇÃO
+    # NORMALIZAÇÃO
     # -----------------------------
     def normalize_label(self, response: str) -> str:
         if not response:
@@ -127,12 +91,11 @@ CONFLICTING EVIDENCE/CHERRYPICKING
         return self.NEE
 
     # -----------------------------
-    # 🛠️ HEURÍSTICA ANTI-ERRO
+    # HEURÍSTICA
     # -----------------------------
     def apply_heuristic(self, text: str, label: str) -> str:
         text_lower = text.lower()
 
-        # 🔥 regra mais importante: evitar falso SUPPORT
         if label == self.SUPPORTED:
             if any(cue in text_lower for cue in self.NEGATION_CUES):
                 return self.REFUTED
@@ -140,45 +103,64 @@ CONFLICTING EVIDENCE/CHERRYPICKING
         return label
 
     # -----------------------------
-    # 🎯 CLASSIFICAÇÃO
+    # CLASSIFICAÇÃO
     # -----------------------------
-    def classify(self, claim, evidence_text, claim_date, speaker) -> str:
+    def classify(self, claim, evidence_text, qa_answer, claim_date, speaker):
 
-        prompt = self.build_prompt(claim, evidence_text, claim_date, speaker)
+        prompt = self.build_prompt(
+            claim,
+            evidence_text,
+            qa_answer,
+            claim_date,
+            speaker
+        )
 
         response = self.llm.generate(prompt)
 
         label = self.normalize_label(response)
-
-        # 🔧 correção pós-LLM (crítica)
         label = self.apply_heuristic(evidence_text, label)
 
         return label
 
     # -----------------------------
-    # 🔄 PIPELINE
+    # PIPELINE
     # -----------------------------
     def run(self, context):
 
-        stances = []
+        # 🆕 inicializar sem sobrescrever
+        if not hasattr(context, "stances") or context.stances is None:
+            context.stances = []
+
+        # 🆕 mapear QA por evidência
+        qa_map = {}
+        for qa in context.qa_pairs:
+            for ev in qa.get("evidence_used", []):
+                qa_map[ev["text"]] = qa["answer"]
+
+        existing_texts = set(s["text"] for s in context.stances)
 
         for e in context.evidence:
             text = e["text"]
 
+            # 🆕 evitar reprocessamento
+            if text in existing_texts:
+                continue
+
+            qa_answer = qa_map.get(text, "")
+
             stance = self.classify(
                 context.claim,
                 text,
+                qa_answer,
                 context.claim_date,
                 context.speaker
             )
 
-            stances.append({
+            context.stances.append({
                 "text": text,
                 "label": stance,
-                "bm25_score": e.get("bm25_score"),
+                "qa_answer": qa_answer,
                 "rerank_score": e.get("rerank_score")
             })
-
-        context.stances = stances
 
         return context
