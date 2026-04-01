@@ -8,10 +8,6 @@ class ExperimentConfig:
         {
             "name": "averitec_train",
             "path": "datasets/averitec/train.json"
-        },
-        {
-            "name": "averitec_test",
-            "path": "datasets/averitec/test.json"
         }
     ]
 

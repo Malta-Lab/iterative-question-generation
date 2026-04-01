@@ -4,23 +4,27 @@ import json
 
 class ResultWriter:
 
-    def __init__(self):
-        self.results = []
+    def __init__(self, path):
+        self.path = path
 
-    def add(self, item, result):
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+
+        if not os.path.exists(self.path):
+            open(self.path, "w", encoding="utf-8").close()
+
+    def _build_entry(self, item, result, claim_id):
+
         steps = []
 
         qa_pairs = result.qa_pairs or []
         stances = result.stances or []
         evidences = result.evidence or []
 
-        # 🔥 garante lista de evidências
         if not isinstance(evidences, list):
             evidences = [evidences]
 
         for i, qa in enumerate(qa_pairs):
 
-            # pega stance correspondente
             stance = None
             if isinstance(stances, list) and i < len(stances):
                 stance = stances[i]
@@ -28,30 +32,26 @@ class ResultWriter:
             processed_evidence = []
 
             for ev in evidences:
-
                 if isinstance(ev, dict):
                     processed_evidence.append({
                         "text": ev.get("text"),
                         "url": ev.get("url"),
                         "rerank_score": ev.get("rerank_score"),
-                        #"label": stance.get("label") if isinstance(stance, dict) else stance
                     })
                 else:
                     processed_evidence.append({
                         "text": str(ev),
                         "url": None,
-                        #"label": stance
                     })
 
-            step = {
+            steps.append({
                 "question": qa.get("question"),
                 "answer": qa.get("answer"),
                 "evidence": processed_evidence
-            }
+            })
 
-            steps.append(step)
-
-        self.results.append({
+        return {
+            "claim_id": claim_id,  # 🔥 ESSENCIAL
             "claim": item.get("claim"),
             "claim_date": item.get("claim_date"),
             "prediction": result.verdict,
@@ -60,26 +60,14 @@ class ResultWriter:
             "pipeline": {
                 "steps": steps
             }
-        })
+        }
 
-    def save(self, path):
-        os.makedirs(os.path.dirname(path), exist_ok=True)
+    def append(self, item, result, claim_id):
 
-        # 🔥 carrega dados antigos se existirem
-        if os.path.exists(path):
-            with open(path, "r", encoding="utf-8") as f:
-                try:
-                    existing_data = json.load(f)
-                except json.JSONDecodeError:
-                    existing_data = []
-        else:
-            existing_data = []
+        entry = self._build_entry(item, result, claim_id)
 
-        all_results = existing_data + self.results
-
-        # 🔥 salva tudo
-        with open(path, "w", encoding="utf-8") as f:
-            json.dump(all_results, f, indent=2, ensure_ascii=False)
-
-        # 🔥 limpa buffer pra evitar duplicação futura
-        self.results = []
+        with open(self.path, "a", encoding="utf-8") as f:
+            f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+            f.flush()
+            os.fsync(f.fileno())
+    

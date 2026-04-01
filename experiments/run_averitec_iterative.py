@@ -21,7 +21,7 @@ from result_writer import ResultWriter
 # 🔧 CONFIG
 VERBOSE = True
 PRINT_EVERY = 1
-SAVE_EVERY = 2
+SAVE_EVERY = 1
 
 
 # =========================
@@ -94,6 +94,23 @@ def print_step_debug(step, step_id):
         print(f"   Evidence (top): {text[:200]}...")
 
 
+def load_done_ids(path):
+    done = set()
+
+    if not os.path.exists(path):
+        return done
+
+    with open(path, "r", encoding="utf-8") as f:
+        for line in f:
+            try:
+                item = json.loads(line)
+                done.add(item["claim_id"])
+            except:
+                continue
+
+    return done        
+
+
 # =========================
 # Main
 # =========================
@@ -101,12 +118,7 @@ def print_step_debug(step, step_id):
 def run():
 
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--resume",
-        type=str,
-        default=None,
-        help="Path to existing run directory or 'latest'"
-    )
+    parser.add_argument("--resume", type=str, default=None)
     args = parser.parse_args()
 
     # =========================
@@ -116,9 +128,8 @@ def run():
     if args.resume:
         if args.resume == "latest":
             run_dir = get_latest_run()
-
             if run_dir is None:
-                raise ValueError("No previous runs found in outputs/averitec_iterative_pipeline/")
+                raise ValueError("No previous runs found")
 
             print(f"\n♻️ Resuming latest run: {run_dir}")
         else:
@@ -130,14 +141,10 @@ def run():
         os.makedirs(run_dir, exist_ok=True)
         print(f"\n📁 New run directory: {run_dir}")
 
-    # =========================
-    # Pipeline
-    # =========================
-
     pipeline = averitec_iterative_pipeline()
 
     # =========================
-    # Save config (only if new run)
+    # Config
     # =========================
 
     config_path = os.path.join(run_dir, "config.json")
@@ -164,30 +171,29 @@ def run():
 
         data = load_dataset(path)
 
-        ckpt = CheckpointManager(os.path.join(run_dir, f"{name}.ckpt"))
-        writer = ResultWriter()
+        output_path = os.path.join(run_dir, f"{name}.jsonl")
+
+        writer = ResultWriter(output_path)
+
+        done_ids = load_done_ids(output_path)
 
         total = len(data)
-
-        done_ids = set(ckpt.state["processed_ids"])
 
         pbar = tqdm(total=total, desc=name)
         pbar.update(len(done_ids))
 
         for i, item in enumerate(data):
 
-            claim_id = i
-
-            if ckpt.is_done(claim_id):
+            if i in done_ids:
                 continue
 
             if VERBOSE and i % PRINT_EVERY == 0:
                 print("\n" + "=" * 80)
-                print(f"🧾 CLAIM {claim_id}")
+                print(f"🧾 CLAIM {i}")
                 print(item["claim"])
 
             context = ClaimContext(
-                claim_id=claim_id,
+                claim_id=i,
                 claim_text=item["claim"],
                 claim_date=item.get("claim_date"),
                 speaker=item.get("speaker")
@@ -195,10 +201,7 @@ def run():
 
             result = pipeline.run(context)
 
-            # =========================
-            # Debug
-            # =========================
-
+            # debug
             if VERBOSE and i % PRINT_EVERY == 0:
 
                 steps = getattr(result, "steps", [])
@@ -207,30 +210,18 @@ def run():
                     print_step_debug(step, j)
 
                 gt = item.get("label")
-
                 correct = (str(result.verdict).lower() == str(gt).lower())
-                status = "✅ CORRECT" if correct else "❌ WRONG"
 
-                print(f"\n   {status}")
+                print("\n   " + ("✅ CORRECT" if correct else "❌ WRONG"))
                 print(f"   PRED: {result.verdict}")
                 print(f"   GT  : {gt}")
 
-            # =========================
-            # Save
-            # =========================
-
-            writer.add(item, result)
-            ckpt.mark_done(claim_id)
-
-            if i % SAVE_EVERY == 0:
-                writer.save(os.path.join(run_dir, f"{name}.json"))
+            # 🔥 salva imediatamente
+            writer.append(item, result, claim_id=i)
 
             pbar.update(1)
 
-        # final save
-        writer.save(os.path.join(run_dir, f"{name}.json"))
         pbar.close()
-
 
 if __name__ == "__main__":
     run()
