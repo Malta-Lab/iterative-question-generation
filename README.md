@@ -88,7 +88,7 @@ LLM_TEMPERATURE=0.0      # Set to `0.0` for deterministic outputs
 LANGUAGE=en              # Language used in prompts (default: `en`)
 
 # ===== QUESTION GENERATION =====
-MAX_QUESTIONS=5         # Maximum number of generated questions (N = 5)
+MAX_QUESTIONS=5          # Maximum number of generated questions (N = 5)
 
 # ===== SEARCH ENGINE =====
 SEARCH_ENGINE=duckduckgo
