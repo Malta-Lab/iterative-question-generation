@@ -112,38 +112,6 @@ CHUNK_SIZE=300          # Number of tokens per passage chunk
 
 ---
 
-## ⚙️ Configuration Details
-
-### 🔹 LLM Settings
-
-| Variable | Description |
-|--------|-------------|
-| `MODEL_NAME` | Model used for generation (e.g., LLaMA, Qwen, DeepSeek) |
-| `TEMPERATURE` | Set to `0.0` for deterministic outputs |
-| `MAX_TOKENS` | Maximum tokens per generation |
-
----
-
-### 🔹 Retrieval Settings
-
-| Variable | Description |
-|--------|-------------|
-| `SEARCH_ENGINE` | Uses DuckDuckGo (free and accessible) |
-| `MAX_URLS` | Number of retrieved URLs per query |
-| `TOP_K_BM25` | Top documents selected via BM25 |
-| `TOP_K_RERANK` | Final passages after reranking |
-
----
-
-### 🔹 Experiment Settings
-
-| Variable | Description |
-|--------|-------------|
-| `MAX_QUERIES` | Maximum number of questions (N = 5) |
-| `DATASET_PATH` | Path to AVeriTeC dataset |
-
----
-
 ## ▶️ Running Experiments
 
 ### 🔹 Single-step
