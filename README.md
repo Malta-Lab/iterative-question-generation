@@ -135,7 +135,7 @@ python experiments/run_averitec_iterative.py
 Results are saved in:
 
 ```
-results/
+outputs/
 ```
 
 Includes:
