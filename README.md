@@ -1,4 +1,4 @@
-# 🧠 Iterative Question Generation for Fact-Checking (AVeriTeC)
+# 🧠 Iterative Question Generation for Fact-Checking
 
 This repository contains the implementation of the experiments from the paper:
 
