@@ -82,32 +82,32 @@ pip install -r requirements.txt
 Create a `.env` file in the root directory:
 
 ```env
-# =========================
-# LLM CONFIGURATION
-# =========================
-MODEL_NAME=llama3.1:8b
-TEMPERATURE=0.0
-MAX_TOKENS=4096
+# ===== LLM =====
+OLLAMA_MODEL=llama3.1:8b # Local model served via Ollama
+LLM_TEMPERATURE=0.0      # Set to `0.0` for deterministic outputs
+LANGUAGE=en              # Language used in prompts (default: `en`)
 
-# =========================
-# RETRIEVAL CONFIGURATION
-# =========================
+# ===== QUESTION GENERATION =====
+MAX_QUESTIONS=5         # Maximum number of generated questions (N = 5)
+
+# ===== SEARCH ENGINE =====
 SEARCH_ENGINE=duckduckgo
-MAX_URLS=30
-TOP_K_BM25=10
-TOP_K_RERANK=5
+SEARCH_MAX_RESULTS=10   # Number of results per query
+SEARCH_MAX_URLS=30      # Maximum URLs retrieved per query
+SEARCH_MAX_WORKERS=10   # Parallel workers for retrieval
 
-# =========================
-# EXPERIMENT CONFIGURATION
-# =========================
-MAX_QUERIES=5
-DATASET_PATH=./data/averitec_dev.json
+# ===== RETRIEVAL =====
+BM25_TOP_K=10           # Number of documents selected via BM25
+USE_QUESTION_FOR_RETRIEVAL=true
 
-# =========================
-# OPTIONAL
-# =========================
-CACHE_DIR=./cache
-OUTPUT_DIR=./results
+# ===== RERANKING =====
+RERANKER_MODEL=cross-encoder/ms-marco-MiniLM-L-6-v2   # Cross-encoder model for reranking
+RERANKER_TOP_K=5        # Final number of selected passages
+RERANKER_THRESHOLD=0.3  # Score threshold for filtering
+USE_RERANKER=true       # Enable/disable reranking stage
+
+# ===== PASSAGES =====
+CHUNK_SIZE=300          # Number of tokens per passage chunk
 ```
 
 ---
