@@ -6,6 +6,28 @@ This repository contains the implementation of the experiments from the paper:
 
 The project investigates the isolated impact of **iterative question generation** in Retrieval-Augmented Generation (RAG) pipelines for fact-checking.
 
+## 🧩 Citation
+If you use this repository in your research, please cite it as follows:
+
+- BibTeX:
+```
+@inproceedings{eniac,
+ author = {Lucas M. Fraga and Marcelo M. Delucis and Christian Mattjie and Pedro Wagner and Arthur Ibarra and Yasmin Cardozo Aguirre and Rodrigo C. Barros and Lucas S. Kupssinskü},
+ title = { Less is More: Improved Fact-Checking on AVeriTeC with Iterative Question Generation},
+ booktitle = {Anais do XXIII Encontro Nacional de Inteligência Artificial e Computacional},
+ location = {Cuiabá/MT},
+ year = {2026},
+ keywords = {},
+ issn = {2763-9061},
+ pages = {205--216},
+ publisher = {SBC},
+ address = {Porto Alegre, RS, Brasil},
+ doi = {10.5753/eniac.2026.29752},
+ url = {https://sol.sbc.org.br/index.php/eniac/article/view/46792}
+}
+
+```
+
 ---
 
 ## 📌 Overview
